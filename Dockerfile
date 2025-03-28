@@ -26,7 +26,9 @@ WORKDIR /app
 
 # Declare the build-time secret
 ARG PAYLOAD_SECRET
+ARG DATABASE_URI
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
+ENV DATABASE_URI=$DATABASE_URI
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
