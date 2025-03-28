@@ -1,0 +1,50 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USER }}/${{ vars.APP_NAME }}:latest .
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKERHUB_USER }}/${{ vars.APP_NAME }}:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: SSH to server and deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            export IMAGE_NAME=${{ secrets.DOCKERHUB_USER }}/${{ vars.APP_NAME }}
+            export CONTAINER_NAME=${{ vars.APP_NAME }}
+
+            cd /home/${{ secrets.SERVER_USER}}/${{ vars.APP_NAME }}
+            docker compose down
+            docker rm ${{ vars.APP_NAME }}
+            docker rmi ${{ secrets.IMAGE_NAME }}
+            docker compose pull
+            docker compose up -d
