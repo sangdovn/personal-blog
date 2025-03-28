@@ -16,9 +16,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
-          --build-arg PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }} \
-          DATABASE_URI=${{ secrets.DATABASE_URI }} \
-          -t ${{ secrets.DOCKERHUB_USER }}/${{ vars.APP_NAME }}:latest .
+          --build-arg PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }} DATABASE_URI=${{ secrets.DATABASE_URI }} -t ${{ secrets.DOCKERHUB_USER }}/${{ vars.APP_NAME }}:latest .
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
