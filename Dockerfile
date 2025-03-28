@@ -8,9 +8,6 @@ FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 
-RUN npm install -g corepack@latest
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -44,6 +41,9 @@ RUN \
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
+
+ARG PAYLOAD_SECRET  
+ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 
 ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
