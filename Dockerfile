@@ -23,6 +23,11 @@ RUN \
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+
+# Declare the build-time secret
+ARG PAYLOAD_SECRET
+ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -41,9 +46,6 @@ RUN \
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
-
-ARG PAYLOAD_SECRET  
-ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 
 ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
